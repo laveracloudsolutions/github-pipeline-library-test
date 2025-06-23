@@ -1,0 +1,34 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Build
+
+# Controls when the workflow will run
+on:
+  #  # Triggers the workflow on push or pull request events but only for the "main" branch
+  #  push:
+  #    branches: [ "main" ]
+  #  pull_request:
+  #    branches: [ "main" ]
+
+  # Shedule 1 fois par semaine
+  schedule:
+    - cron: "0 12 * * 0"
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  job1:
+    uses: laveracloudsolutions/github-pipeline-library/.github/workflows/build.yml@main
+
+  job2:
+    runs-on: ubuntu-latest
+    needs: job1
+    steps:
+      # Update All Docker Images
+      - name: Update All Docker Images
+        env:
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_PAT: ${{ secrets.GHCR_PAT }}
+        run: |
+          echo $GHCR_PAT | docker login ghcr.io -u $GHCR_USERNAME --password-stdin
+          ./.scripts/push-base-images.sh
